@@ -7,43 +7,45 @@
 #include <string.h>
 #include <signal.h>
 
+#define SHM_KEY 7000
 #define MAX_PROCESSOS 20
 
 struct processo{
-   int indice;
-   char nomeProcesso[10];
+    int indice;
+    char nomeProcesso[10];
 }; typedef struct processo Processo;
 
-int main(void){
-   FILE *fp;
-   char filename[] = "exec.txt";
-   size_t len = 0;
-   ssize_t read = 0;
-   int i = 0;
-   Processo* listaProcessos;
-   char nomeProcesso[10];
+int main(void)
+{
 
-   listaProcessos = (Processo*) malloc(MAX_PROCESSOS * sizeof(Processo));
+    int i = 0;
+    char filename[] = "exec.txt";
+    size_t segmento;
 
-   fp = fopen(filename, "r"); // abre o arquivo para leitura
+    Processo *lstProcessos;
+    char nomeProcesso[10];
 
-   if (fp == NULL) { // verifica se houve erro na abertura do arquivo
-      printf("Erro ao abrir o arquivo.\n");
-      return 1;
-   }
+    segmento = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Processo), IPC_CREAT | 0666);
+    lstProcessos = shmat(segmento, 0, 0);
 
-   while (fscanf(fp, "%*s %s", nomeProcesso) != EOF) { // lê cada linha do arquivo
-      printf("Comando lido: %s\n", nomeProcesso);
-      
-      listaProcessos[i].indice = i;
-      strcpy(listaProcessos[i].nomeProcesso, nomeProcesso);
+    FILE *fp = fopen(filename, "r"); // abre o arquivo para leitura
+    if (!fp){
+        puts("Problem opening file fp");
+        exit(1);
+    } // Trata problema ao abrir o arquivo
 
-      printf("Nome do processo: %s  //  índice: %d\n", listaProcessos[i].nomeProcesso, listaProcessos[i].indice);
+    while (fscanf(fp, "%*s <%[^>]>", nomeProcesso) != EOF){ // lê cada linha do arquivo
+        printf("Comando lido: %s\n", nomeProcesso);
 
-      i++;
-   }
+        lstProcessos[i].indice = i;
+        strcpy(lstProcessos[i].nomeProcesso, nomeProcesso);
 
-   fclose(fp); // fecha o arquivo
+        printf("Nome do processo: %s  //  índice: %d\n", lstProcessos[i].nomeProcesso, lstProcessos[i].indice);
 
-   return 0;
+        i++;
+    }
+
+    fclose(fp); // fecha o arquivo
+
+    return 0;
 }
