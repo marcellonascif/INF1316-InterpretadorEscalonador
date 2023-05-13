@@ -7,7 +7,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#include "processo.h"
+#include "info.h"
 
 
 #define SHM_KEY 7000
@@ -20,7 +20,7 @@ int main(void)
     char filename[] = "exec.txt";
     size_t segmento;
 
-    Processo *lstProcessos;
+    StrProcesso *lstProcessos;
     char nomeProcesso[10];
 
     segmento = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Processo), IPC_CREAT | 0666);

@@ -5,18 +5,18 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "processo.h"
+#include "info.h"
 
 int main(void){
 
     size_t segmento;
 
-    Processo *lstProcessos;
+    StrProcesso *lstProcessos;
 
     segmento = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Processo), IPC_CREAT | 0666);
     lstProcessos = shmat(segmento, 0, 0);
 
-    
+
 
 
 
