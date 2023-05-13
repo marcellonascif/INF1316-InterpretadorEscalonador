@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include "processo.h"
 
 int main(void){
-    printf("hello world!");
-    printf("pais");
+
+
+    segmento = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Processo), IPC_CREAT | 0666);
+    lstProcessos = shmat(segmento, 0, 0);
 
     return 0;
 }

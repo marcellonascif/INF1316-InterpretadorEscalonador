@@ -6,14 +6,11 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
+#include "processo.h"
+
 
 #define SHM_KEY 7000
 #define MAX_PROCESSOS 20
-
-struct processo{
-    int indice;
-    char nomeProcesso[10];
-}; typedef struct processo Processo;
 
 int main(void)
 {
