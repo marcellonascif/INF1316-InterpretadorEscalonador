@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <string.h>
 #include <signal.h>
+
 #include "processo.h"
 
 
