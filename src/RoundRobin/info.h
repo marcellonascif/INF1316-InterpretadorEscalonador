@@ -19,5 +19,5 @@ struct process {
     int exectime;
     int waittime;
     int io; // 0: Não 1: Sim
-    //struct processo* prox;
+    struct process* prox;
 }; typedef struct process Process;

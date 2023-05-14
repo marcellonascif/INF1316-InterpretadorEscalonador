@@ -38,11 +38,11 @@ int createProcess(char *program, int index) {
     	}
 	else if (pid == 0) { // Filho 
 		char * args[2];
-    		args[0] = pidPaiChar;
-    		args[1] = NULL;
+        args[0] = pidPaiChar;
+        args[1] = NULL;
 		strcat(path, nomeProg);  // Programas/programa1 (Exemplo)
-        	if(execv(path, args) < 0) // Tenta executar o programa
-    			printf("Erro ao executar %s.\n", nomeProg); 
+        if(execv(path, args) < 0) // Tenta executar o programa
+    		printf("Erro ao executar %s.\n", nomeProg); 
 	} 
 	else { // Pai (Pausa o programa que está executando no processo filho)
 		kill(pid, SIGSTOP);

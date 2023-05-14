@@ -10,14 +10,14 @@ Queue* create_queue (){
     return f;
 }
 
-Process * create_process(char * nome, int pid){
+Process * create_process(char * name, int pid){
 	Process* p = (Process*)malloc(sizeof(Process));
-    	p->nome = nome;
+    	p->name = name;
     	p->pid = pid;
-	p->status = PRONTO;
-    	p->tempoEmExecucao = 0;
-    	p->tempoEmEspera = 0;
-	p->enviouSinalIO = 0;
+		p->status = PRONTO;
+    	p->exectime = 0;
+    	p->waittime = 0;
+		p->io = 0;
     	p->prox=NULL;
 
 	return p;
@@ -25,10 +25,10 @@ Process * create_process(char * nome, int pid){
 
 Process * copy_process(Process *p){
 	Process *novo;
-	novo = create_process(p->nome, p->pid);
-	novo->tempoEmExecucao = p->tempoEmExecucao;
-	novo->tempoEmEspera = p->tempoEmEspera;
-	novo->enviouSinalIO = p->enviouSinalIO;
+	novo = create_process(p->name, p->pid);
+	novo->exectime = p->exectime;
+	novo->waittime = p->waittime;
+	novo->io = p->io;
 	return novo;
 }
  
@@ -83,14 +83,14 @@ void remove_process(Queue *f, Process *p){
 		aux = aux->prox;
 
 	}	
-	printf("Não encontrou o Processo %s na queue!\n", p->nome);
+	printf("Não encontrou o Processo %s na queue!\n", p->name);
 	return;
 }
 
-void print_queue(Queue *f, char *nomeQueue){
+void print_queue(Queue *f, char *nameQueue){
 	Process *aux;
 	
-	printf("\nProcesso na queue de %s:\n", nomeQueue);
+	printf("\nProcesso na queue de %s:\n", nameQueue);
 	if(f == NULL){
 		printf("queue não foi criada!\n");
 		return;
@@ -101,7 +101,7 @@ void print_queue(Queue *f, char *nomeQueue){
 	}
 	aux = f->ini;
 	while(aux!=NULL){
-		printf("  Nome: %s\n",aux->nome);
+		printf("  Nome: %s\n",aux->name);
 		aux = aux->prox;
 	}
 	printf("\n");
