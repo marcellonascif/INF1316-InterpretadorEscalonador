@@ -16,9 +16,11 @@ struct strProcess{
     int index;
     char processName[10];
     int init;
-    char initP;
+    char initP; 
     int duration;
 }; typedef struct strProcess StrProcess;
+
+StrProcess verifyProcess(StrProcess lstProcess); 
 
 
 int main(void)
@@ -53,6 +55,9 @@ int main(void)
 		strcpy(lstProcess[i].processName, processName);
 		printf("Comando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].processName, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
 
+		lstProcess[i] = verifyProcess(lstProcess[i]); // verifica se inicio + duracao > 59, se for anula o processo colocando flag de -1 em lstProcesso.inicio
+
+		if(lstProcess[i].init == -1) printf("Processo: (%s) inválido.\n", processName);
 		i++;
 
 		sleep(1);
@@ -63,4 +68,9 @@ int main(void)
     // libera a memória compartilhada
 	shmctl(segmento, IPC_RMID, 0);
 	return 0;
+}
+
+StrProcess verifyProcess(StrProcess lstProcess){
+	if((lstProcess.duration + lstProcess.init) > 59) lstProcess.init = -1;
+	return lstProcess;
 }
