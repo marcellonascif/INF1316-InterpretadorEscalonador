@@ -57,7 +57,7 @@ int main(void)
 
 		lstProcess[i] = verifyProcess(lstProcess[i]); // verifica se inicio + duracao > 59, se for anula o processo colocando flag de -1 em lstProcesso.inicio
 
-		if(lstProcess[i].init == -1) printf("Processo: (%s) inválido.\n", processName);
+		if(lstProcess[i].init == -1) printf("Processo: (%s) inválido. Tempo de execução excede o limite permitido.\n", processName);
 		i++;
 
 		sleep(1);
