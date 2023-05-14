@@ -24,7 +24,7 @@ int main(void){
 
 
 int createProcess(char *program, int index) {
-	char path[] = "../Programas/";
+	char path[] = "../programas/";
 	int pid, pidPai;
 	char * pidPaiChar;
 
