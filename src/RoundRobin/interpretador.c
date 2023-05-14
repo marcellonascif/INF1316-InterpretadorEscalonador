@@ -17,7 +17,7 @@ int main(void)
 {
 
 	int i = 0;
-	char filename[] = "src/exec.txt";
+	char filename[] = "exec.txt";
 	size_t segmento;
 
 	StrProcess *lstProcess;

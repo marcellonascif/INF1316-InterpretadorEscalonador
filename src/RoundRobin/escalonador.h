@@ -1,1 +1,0 @@
-int criaNovoProcesso (char *nomeProg, int index);
