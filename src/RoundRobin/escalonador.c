@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #include "info.h"
 //#include "escalonador.h"
@@ -40,18 +41,20 @@ int createProcess(char *program, int index) {
 		char * args[2];
         args[0] = pidPaiChar;
         args[1] = NULL;
-		strcat(path, nomeProg);  // Programas/programa1 (Exemplo)
+		strcat(path, program);  // Programas/programa1 (Exemplo)
         if(execv(path, args) < 0) // Tenta executar o programa
-    		printf("Erro ao executar %s.\n", nomeProg); 
+    		printf("Erro ao executar %s.\n", program); 
 	} 
 	else { // Pai (Pausa o programa que está executando no processo filho)
 		kill(pid, SIGSTOP);
 		sleep(1);
-	    printf("Escalonador: Criou processo filho %s com pid %d\n", nomeProg, pid);
-		printf("Escalonador: %s recebeu sinal SIGSTOP\n", nomeProg);
+	    printf("Escalonador: Criou processo filho %s com pid %d\n", program, pid);
+		printf("Escalonador: %s recebeu sinal SIGSTOP\n", program);
 		if(signal(SIGUSR1,recebeuSinalIO) == SIG_ERR){
 			printf("Processo pai recebeu sinal I/O (Chamando rotina)\n");
 		}
 	}
 	return pid;
 }
+
+
