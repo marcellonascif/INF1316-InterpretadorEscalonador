@@ -16,8 +16,8 @@ struct process {
     char *name; // Nome do Programa
     int pid;
     Status status; // Estado atual do processo
-    int exectime;
-    int waittime;
+    int execTime;
+    int waitTime;
     int io; // 0: Não 1: Sim
     struct process* prox;
 }; typedef struct process Process;

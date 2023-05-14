@@ -5,23 +5,22 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
-
+#include "queue.h"
 #include "info.h"
 //#include "escalonador.h"
 
+Process *currentProcess = NULL;
+Queue *filaEspera, *filaPronto;
+
+int cpuOciosa; // 0: Não 1: Sim
+int tempoCpuOciosa;
+
+#define TEMPO_ESPERA 3 // Tempo limite no estado de espera
+
 //PROTOTYPES
 int createProcess (char *program, int index);
+void ioHandler(int signal);
 
-int main(void){
-
-    size_t seg;
-    StrProcess *lstProcess;
-
-    seg = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(StrProcess), IPC_CREAT | 0666);
-    lstProcess = shmat(seg, 0, 0);
-
-    return 0;
-}
 
 
 int createProcess(char *program, int index) {
@@ -50,11 +49,162 @@ int createProcess(char *program, int index) {
 		sleep(1);
 	    printf("Escalonador: Criou processo filho %s com pid %d\n", program, pid);
 		printf("Escalonador: %s recebeu sinal SIGSTOP\n", program);
-		if(signal(SIGUSR1,recebeuSinalIO) == SIG_ERR){
+		if(signal(SIGUSR1,ioHandler) == SIG_ERR){
 			printf("Processo pai recebeu sinal I/O (Chamando rotina)\n");
 		}
 	}
 	return pid;
 }
 
+void ioHandler(int signal){
+	if(signal == SIGUSR1) { 
+		currentProcess->io = 1;
+	}
+}
 
+/*Adiciona processo que recebeu I/O à fila de espera*/
+void trataSinalIO(){
+	printf("%s enviou sinal SIGUSR1 (I/O)\n", currentProcess->name);
+	currentProcess->status = ESPERA;
+	fila_insere(filaEspera, copiaProcesso(currentProcess));
+	kill(currentProcess->pid, SIGSTOP);
+	printf("%s recebeu SIGSTOP e entrou na fila de Espera\n", currentProcess->name);
+	exibeFila(filaEspera, "Espera");
+	if(filaPronto->qtd > 0) atualizaEiniciacurrentProcess();
+	else{
+		currentProcess = NULL;
+		printf("\nCPU está ociosa!\n");
+		cpuOciosa = 1;
+		tempoCpuOciosa = 0;
+	}
+}
+
+/*Incrementa 1 u.t. em cada processo em espera*/
+void atualizawaitTime() {
+	Process *aux;
+	aux = filaEspera->ini;
+
+	while(aux != NULL) {
+		aux->waitTime++;
+		if(aux->waitTime == TEMPO_ESPERA) { // Terminou espera I/O
+			aux->status = PRONTO;
+			aux->waitTime = 0;
+			removeProcesso(filaEspera, aux);
+			printf("%s terminou I/O - Removido da Fila de Espera\n\n", aux->name);
+			fila_insere(filaPronto, copiaProcesso(aux));
+			exibeFila(filaPronto, "Pronto");
+		}
+		aux = aux->prox;
+	}
+}
+
+/*Retira processo da fila de prontos e inicia sua execução*/
+void atualizaEiniciacurrentProcess(){
+	currentProcess = fila_retira(filaPronto);
+	if(currentProcess == NULL) {
+		printf("Fila Pronto vazia e chamou fila_retira\n");
+		 return ;
+	}
+	kill(currentProcess->pid, SIGCONT);
+	currentProcess->status = PROCESSANDO;
+	printf("%s recebeu SIGCONT\n", currentProcess->name);
+	if(cpuOciosa) { // Terminou I/O
+		tempoCpuOciosa = 0;
+		cpuOciosa = 0;
+	}
+	exibeFila(filaPronto, "Pronto");
+}
+
+void executaEscalonamentoRoundRobin() {
+	
+	int i, status, qtdProcessos, tempoKill = 0;
+
+	printf("\n\n***** Iniciando Escalonamento (Round Robin) *****\n\n");
+
+	exibeFila(filaPronto, "Pronto");
+
+	qtdProcessos = filaPronto->qtd;
+	atualizaEiniciacurrentProcess();
+
+	// Cada iteração passa 1 u.t.
+	while(qtdProcessos > 0){ 
+
+		sleep(1); // Time-Slice de 1 u.t.
+		
+		if(cpuOciosa) { // Se a CPU estiver ociosa
+			tempoCpuOciosa++;
+			printf("CPU ociosa por %d u.t.\n", tempoCpuOciosa);
+			if(filaEspera->qtd > 0) atualizawaitTime();
+		}
+		else { // Tem algum processo em execução
+			currentProcess->execTime++;
+			tempoKill++;
+			printf("%s - Tempo de processamento: %d u.t.\n", currentProcess->name, currentProcess->execTime);
+			if(filaEspera->qtd > 0) atualizawaitTime();
+			if(currentProcess->io) {
+				currentProcess->io  = 0;
+				trataSinalIO();
+			}
+		}
+	
+		// Atualiza processo corrente com próximo processo da Fila Pronto
+		if(filaPronto->qtd > 0) {
+			if(currentProcess != NULL && currentProcess->status == PROCESSANDO) {
+				kill(currentProcess->pid, SIGSTOP);
+				printf("\n%s recebeu SIGSTOP\n\n", currentProcess->name);
+				currentProcess->status = PRONTO;
+				fila_insere(filaPronto, copiaProcesso(currentProcess));
+			}
+			atualizaEiniciacurrentProcess();
+		}
+		
+		if(tempoKill >= 10) { // Kill no processo corrente
+			if(currentProcess != NULL) {
+				kill(currentProcess->pid, SIGKILL);
+				qtdProcessos--;
+				printf("\n%s recebeu SIGKILL - Restam %d processo(s)\n\n", currentProcess->name, qtdProcessos);
+				liberaProcesso(currentProcess);
+				tempoKill = 0;
+				if(qtdProcessos == 0) break;
+				if(filaPronto->qtd > 0) atualizaEiniciacurrentProcess();
+				else cpuOciosa = 0;
+			}
+		}
+		
+	}
+	printf("\n\n***** Fim do Escalonamento (Round Robin) *****\n\n");
+}
+
+int main(void){
+
+    size_t seg;
+    StrProcess *lstProcess;
+
+    // seg = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(StrProcess), IPC_CREAT | 0666);
+    lstProcess = shmat(SHM_KEY, 0, 0);
+
+	int segmento,segmento2;
+	StrProcess *dados;
+	int i = 0, j;
+	Process * novo;
+	
+	filaEspera = fila_cria();
+	filaPronto = fila_cria();
+	
+	while (strlen(dados[i].processName) != 0) {
+		int pid = criaNovoProcesso(dados[i].processName, dados[i].index);
+		printf("name do programa: %s - pid: %d\n\n",dados[i].processName, pid);
+		novo = criaProcesso(dados[i].processName, pid); 
+		fila_insere(filaPronto, novo);
+		i++;
+	}
+
+	executaEscalonamentoRoundRobin();
+
+	// libera a memória compartilhada do processo
+	shmdt(dados);
+
+	// libera a memória compartilhada
+	shmctl(segmento, IPC_RMID, 0);
+    return 0;
+}

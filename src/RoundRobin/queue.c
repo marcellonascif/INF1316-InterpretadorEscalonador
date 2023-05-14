@@ -15,8 +15,8 @@ Process * create_process(char * name, int pid){
     	p->name = name;
     	p->pid = pid;
 		p->status = PRONTO;
-    	p->exectime = 0;
-    	p->waittime = 0;
+    	p->execTime = 0;
+    	p->waitTime = 0;
 		p->io = 0;
     	p->prox=NULL;
 
@@ -26,8 +26,8 @@ Process * create_process(char * name, int pid){
 Process * copy_process(Process *p){
 	Process *novo;
 	novo = create_process(p->name, p->pid);
-	novo->exectime = p->exectime;
-	novo->waittime = p->waittime;
+	novo->execTime = p->execTime;
+	novo->waitTime = p->waitTime;
 	novo->io = p->io;
 	return novo;
 }
