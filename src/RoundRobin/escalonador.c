@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -7,7 +8,6 @@
 #include <signal.h>
 #include "queue.h"
 #include "info.h"
-//#include "escalonador.h"
 
 Process *currentProcess = NULL;
 Queue *filaEspera, *filaPronto;
@@ -183,18 +183,16 @@ int main(void){
     // seg = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(StrProcess), IPC_CREAT | 0666);
     lstProcess = shmat(SHM_KEY, 0, 0);
 
-	int segmento,segmento2;
-	StrProcess *dados;
 	int i = 0, j;
 	Process * novo;
 	
 	filaEspera = fila_cria();
 	filaPronto = fila_cria();
 	
-	while (strlen(dados[i].processName) != 0) {
-		int pid = criaNovoProcesso(dados[i].processName, dados[i].index);
-		printf("name do programa: %s - pid: %d\n\n",dados[i].processName, pid);
-		novo = criaProcesso(dados[i].processName, pid); 
+	while (strlen(lstProcess[i].processName) != 0) {
+		int pid = criaNovoProcesso(lstProcess[i].processName, lstProcess[i].index);
+		printf("name do programa: %s - pid: %d\n\n",lstProcess[i].processName, pid);
+		novo = criaProcesso(lstProcess[i].processName, pid); 
 		fila_insere(filaPronto, novo);
 		i++;
 	}
@@ -202,9 +200,9 @@ int main(void){
 	executaEscalonamentoRoundRobin();
 
 	// libera a memória compartilhada do processo
-	shmdt(dados);
+	shmdt(lstProcess);
 
 	// libera a memória compartilhada
-	shmctl(segmento, IPC_RMID, 0);
+	//shmctl(segmento, IPC_RMID, 0);
     return 0;
 }
