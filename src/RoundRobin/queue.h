@@ -2,22 +2,13 @@
 #include <stdio.h>
 #include "info.h"
 
-
-enum status {
-	PRONTO, PROCESSANDO, ESPERA
-};
-
-typedef enum status Status;
-
-
 struct queue {
     Process* ini;
     Process* fim;
     int qtd;  // Quantidade de Processos
-};
-
-typedef struct queue Queue;
+};typedef struct queue Queue;
  
+
 Queue* create_queue ();
 
 Process * create_process(char * nome, int pid);

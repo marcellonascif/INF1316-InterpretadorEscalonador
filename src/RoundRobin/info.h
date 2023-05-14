@@ -12,6 +12,7 @@ struct strProcess{
     char processName[10];
 }; typedef struct strProcess StrProcess;
 
+
 struct process {
     char *name; // Nome do Programa
     int pid;
