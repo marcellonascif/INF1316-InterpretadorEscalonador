@@ -5,7 +5,7 @@
 
 enum status {
     PRONTO, PROCESSANDO, ESPERA
-};typedef enum status Status;
+}; typedef enum status Status;
 
 struct strProcess{
     int index;
