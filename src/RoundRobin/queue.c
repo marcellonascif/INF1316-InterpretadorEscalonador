@@ -1,16 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "queue.h"
-#include "info.h"
 
-Queue* create_queue (){
+Queue *create_queue (){
     Queue* f = (Queue*)malloc(sizeof(Queue));
     f->ini=f->fim = NULL;
     f->qtd = 0;
     return f;
 }
 
-Process * create_process(char * name, int pid){
+Process *create_process(char *name, int pid){
 	Process* p = (Process*)malloc(sizeof(Process));
     	p->name = name;
     	p->pid = pid;
@@ -23,7 +22,7 @@ Process * create_process(char * name, int pid){
 	return p;
 }
 
-Process * copy_process(Process *p){
+Process *copy_process(Process *p){
 	Process *novo;
 	novo = create_process(p->name, p->pid);
 	novo->execTime = p->execTime;
@@ -32,7 +31,7 @@ Process * copy_process(Process *p){
 	return novo;
 }
  
-void insert_queue (Queue* f, Process *p){
+void insert_queue (Queue *f, Process *p){
     p->prox = NULL;
     if (f->fim != NULL)
         f->fim->prox = p;
@@ -42,7 +41,7 @@ void insert_queue (Queue* f, Process *p){
     f->qtd++;
 }
  
-Process * remove_queue (Queue* f){
+Process *remove_queue (Queue *f){
     Process* t;
     if(f->ini==NULL)
         return NULL;

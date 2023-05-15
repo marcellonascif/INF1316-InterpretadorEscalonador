@@ -6,8 +6,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
+
 #include "queue.h"
-#include "info.h"
+
 
 Process *currentProcess = NULL;
 Queue *filaEspera, *filaPronto;
@@ -18,19 +19,20 @@ int tempoCpuOciosa;
 #define TEMPO_ESPERA 3 // Tempo limite no estado de espera
 
 //PROTOTYPES
-int createProcess (char *program, int index);
+int create_process_pid (char *program, int index);
 void ioHandler(int signal);
+void atualizaEiniciacurrentProcess();
 
 
 
-int createProcess(char *program, int index) {
+int create_process_pid(char *program, int index) {
 	char path[] = "../programas/";
 	int pid, pidPai;
-	char * pidPaiChar;
+	char *pidPaiChar;
 
 	pidPai = getpid();
 	pid = fork();
-	pidPaiChar = converteParaChar(pidPai);
+	pidPaiChar = (char *)pidPai;
 
 	if(pid < 0) { // Erro
 		printf("Erro ao criar processo filho.\n");
@@ -66,10 +68,10 @@ void ioHandler(int signal){
 void trataSinalIO(){
 	printf("%s enviou sinal SIGUSR1 (I/O)\n", currentProcess->name);
 	currentProcess->status = ESPERA;
-	fila_insere(filaEspera, copiaProcesso(currentProcess));
+	insert_queue(filaEspera, copy_process(currentProcess));
 	kill(currentProcess->pid, SIGSTOP);
 	printf("%s recebeu SIGSTOP e entrou na fila de Espera\n", currentProcess->name);
-	exibeFila(filaEspera, "Espera");
+	print_queue(filaEspera, "Espera");
 	if(filaPronto->qtd > 0) atualizaEiniciacurrentProcess();
 	else{
 		currentProcess = NULL;
@@ -89,10 +91,10 @@ void atualizawaitTime() {
 		if(aux->waitTime == TEMPO_ESPERA) { // Terminou espera I/O
 			aux->status = PRONTO;
 			aux->waitTime = 0;
-			removeProcesso(filaEspera, aux);
+			remove_process(filaEspera, aux);
 			printf("%s terminou I/O - Removido da Fila de Espera\n\n", aux->name);
-			fila_insere(filaPronto, copiaProcesso(aux));
-			exibeFila(filaPronto, "Pronto");
+			insert_queue(filaPronto, copy_process(aux));
+			print_queue(filaPronto, "Pronto");
 		}
 		aux = aux->prox;
 	}
@@ -100,7 +102,7 @@ void atualizawaitTime() {
 
 /*Retira processo da fila de prontos e inicia sua execução*/
 void atualizaEiniciacurrentProcess(){
-	currentProcess = fila_retira(filaPronto);
+	currentProcess = remove_queue(filaPronto);
 	if(currentProcess == NULL) {
 		printf("Fila Pronto vazia e chamou fila_retira\n");
 		 return ;
@@ -112,16 +114,16 @@ void atualizaEiniciacurrentProcess(){
 		tempoCpuOciosa = 0;
 		cpuOciosa = 0;
 	}
-	exibeFila(filaPronto, "Pronto");
+	print_queue(filaPronto, "Pronto");
 }
 
 void executaEscalonamentoRoundRobin() {
 	
-	int i, status, qtdProcessos, tempoKill = 0;
+	int qtdProcessos, tempoKill = 0;
 
 	printf("\n\n***** Iniciando Escalonamento (Round Robin) *****\n\n");
 
-	exibeFila(filaPronto, "Pronto");
+	print_queue(filaPronto, "Pronto");
 
 	qtdProcessos = filaPronto->qtd;
 	atualizaEiniciacurrentProcess();
@@ -153,7 +155,7 @@ void executaEscalonamentoRoundRobin() {
 				kill(currentProcess->pid, SIGSTOP);
 				printf("\n%s recebeu SIGSTOP\n\n", currentProcess->name);
 				currentProcess->status = PRONTO;
-				fila_insere(filaPronto, copiaProcesso(currentProcess));
+				insert_queue(filaPronto, copy_process(currentProcess));
 			}
 			atualizaEiniciacurrentProcess();
 		}
@@ -163,7 +165,7 @@ void executaEscalonamentoRoundRobin() {
 				kill(currentProcess->pid, SIGKILL);
 				qtdProcessos--;
 				printf("\n%s recebeu SIGKILL - Restam %d processo(s)\n\n", currentProcess->name, qtdProcessos);
-				liberaProcesso(currentProcess);
+				free_process(currentProcess);
 				tempoKill = 0;
 				if(qtdProcessos == 0) break;
 				if(filaPronto->qtd > 0) atualizaEiniciacurrentProcess();
@@ -177,23 +179,23 @@ void executaEscalonamentoRoundRobin() {
 
 int main(void){
 
-    size_t seg;
+    //size_t seg;
     StrProcess *lstProcess;
 
     // seg = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(StrProcess), IPC_CREAT | 0666);
     lstProcess = shmat(SHM_KEY, 0, 0);
 
-	int i = 0, j;
-	Process * novo;
+	int i = 0;
+	Process *novo;
 	
-	filaEspera = fila_cria();
-	filaPronto = fila_cria();
+	filaEspera = create_queue();
+	filaPronto = create_queue();
 	
 	while (strlen(lstProcess[i].processName) != 0) {
-		int pid = criaNovoProcesso(lstProcess[i].processName, lstProcess[i].index);
+		int pid = create_process_pid(lstProcess[i].processName, lstProcess[i].index);
 		printf("name do programa: %s - pid: %d\n\n",lstProcess[i].processName, pid);
-		novo = criaProcesso(lstProcess[i].processName, pid); 
-		fila_insere(filaPronto, novo);
+		novo = create_process(lstProcess[i].processName, pid); 
+		insert_queue(filaPronto, novo);
 		i++;
 	}
 

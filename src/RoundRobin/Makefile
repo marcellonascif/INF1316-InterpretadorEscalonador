@@ -7,5 +7,5 @@ interpretar: interpretador.c
 	./interpretador
 
 escalonar: escalonador.c
-	gcc -Wall -o escalonador escalonador.c
+	gcc -Wall -o escalonador escalonador.c queue.c
 	./escalonador
