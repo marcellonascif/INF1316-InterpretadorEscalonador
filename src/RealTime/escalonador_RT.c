@@ -6,18 +6,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/types.h>
 
-
-#define SHM_KEY 8000
-#define MAX_PROCESSOS 20
-
-struct strProcess{
-    int index;
-    char processName[10];
-    int init;
-    char initP; 
-    int duration;
-}; typedef struct strProcess StrProcess;
+#include "info.h"
 
 
 
@@ -34,15 +25,14 @@ int main(void){
         perror("Erro ao anexar à memória compartilhada.\n");
         exit(1);
     }
-    
-
-    for (int i = 0; i < 4; i++) {
-        printf("Escalonador recebendo:\n");
+    int i = 0;
+    while(1){
+        sleep(1); //espera o interpretador preencher o vetor
+        if(processInfo[i].last == -1) break;
+        printf("\nEscalonador recebendo:\n");
         printf("Nome do processo: %s  //  Índice: %d  //  Início: %d  //  Duração: %d\n", processInfo[i].processName, processInfo[i].index, processInfo[i].init, processInfo[i].duration);
+        i++;
     }
-    
-
-
 
     // libera a memória compartilhada
 	shmctl(shared_memory, IPC_RMID, 0);

@@ -6,19 +6,10 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/types.h>
+#include "info.h"
 
-// #include "info.h"
 
-#define SHM_KEY 8000
-#define MAX_PROCESSOS 20
-
-struct strProcess{
-    int index;
-    char processName[10];
-    int init;
-    char initP; 
-    int duration;
-}; typedef struct strProcess StrProcess;
 
 StrProcess verifyProcess(StrProcess lstProcess); 
 
@@ -47,13 +38,15 @@ int main(void)
 		exit(1);
 	} // Trata problema ao abrir o arquivo
     
-    
-	while (fscanf(fp, "%*s <%[^>]> I=<%d> D=<%d>", processName, &inicio, &duracao) != EOF){ // lê cada linha do arquivo
+    pid_t pid;
+	pid = fork();
+	if(pid == 0){ // processo filho
+		while (fscanf(fp, "%*s <%[^>]> I=<%d> D=<%d>", processName, &inicio, &duracao) != EOF){ // lê cada linha do arquivo
         lstProcess[i].init = inicio;
         lstProcess[i].duration = duracao;
 		lstProcess[i].index = i;
 		strcpy(lstProcess[i].processName, processName);
-		printf("Comando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].processName, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
+		printf("\nIntepretador:\nComando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].processName, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
 
 		lstProcess[i] = verifyProcess(lstProcess[i]); // verifica se inicio + duracao > 59, se for anula o processo colocando flag de -1 em lstProcesso.inicio
 
@@ -61,11 +54,17 @@ int main(void)
 		i++;
 
 		sleep(1);
+		}
+		lstProcess[i].last = -1; // ultimo a ser lido no arquivo
+		
+	}
+	if(pid > 0){ // processo pai
+		char *argv[] = {NULL};
+		// sleep(1);
+        execvp("./escalonador_RT", argv); //executa o escalonador
 	}
 
 	fclose(fp); // fecha o arquivo
-
-    
 	return 0;
 }
 
