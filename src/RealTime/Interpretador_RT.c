@@ -65,8 +65,7 @@ int main(void)
 
 	fclose(fp); // fecha o arquivo
 
-    // libera a memória compartilhada
-	shmctl(segmento, IPC_RMID, 0);
+    
 	return 0;
 }
 
