@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "signal.h": "c",
-        "stdio.h": "c",
-        "stat.h": "c",
-        "processo.h": "c",
-        "wait.h": "c"
-    }
-}
