@@ -3,6 +3,7 @@
 
 #define SHM_KEY 8000
 #define MAX_PROCESSOS 20
+#define EVER ;;
 
 typedef struct process{
     char name[10]; // Nome do Programa

@@ -10,7 +10,7 @@
 
 #include "info.h"
 
-StrProcess verifyProcess(StrProcess lstProcess); 
+Process verifyProcess(Process lstProcess); 
 
 int main(void)
 {
@@ -20,10 +20,10 @@ int main(void)
 	
 	char filename[] = "exec.txt";
 	size_t segmento;
-	StrProcess *lstProcess;
+	Process *lstProcess;
 	char processName[10];
 
-	segmento = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(StrProcess), IPC_CREAT | 0666);
+	segmento = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Process), IPC_CREAT | 0666);
     if (segmento == -1) {
     perror("Erro ao alocar memória compartilhada");
     exit(1);
@@ -68,7 +68,7 @@ int main(void)
 	return 0;
 }
 
-StrProcess verifyProcess(StrProcess lstProcess){
+Process verifyProcess(Process lstProcess){
 	if((lstProcess.duration + lstProcess.init) > 59) lstProcess.init = -1;
 	return lstProcess;
 }
