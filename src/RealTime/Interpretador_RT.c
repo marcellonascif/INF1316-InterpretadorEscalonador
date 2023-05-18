@@ -10,8 +10,6 @@
 
 #include "info.h"
 
-Process verifyProcess(Process lstProcess); 
-
 int main(void)
 {
     int i = 0;
@@ -39,23 +37,29 @@ int main(void)
 	pid_t pid = fork();
 	if(pid == 0){ // processo filho
 		while (fscanf(fp, "%*s <%[^>]> I=<%d> D=<%d>", processName, &inicio, &duracao) != EOF){ // lê cada linha do arquivo
-			lstProcess[i].init = inicio;
-			lstProcess[i].duration = duracao;
-			lstProcess[i].index = i;
-			strcpy(lstProcess[i].name, processName);
-			printf("\nIntepretador:\nComando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].name, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
+			
+			if ((inicio + duracao) < 59){
+				strcpy(lstProcess[i].name, processName);
+				lstProcess[i].index = i;
+				lstProcess[i].init = inicio;
+				lstProcess[i].duration = duracao;
+				lstProcess[i].last = FALSE;
 
-			lstProcess[i] = verifyProcess(lstProcess[i]); // verifica se inicio + duracao > 59, se for anula o processo colocando flag de -1 em lstProcesso.inicio
+				i++;
+				sleep(1);
 
-			if(lstProcess[i].init == -1){
+				//printf("\nIntepretador:\nComando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].name, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
+
+			}
+			else{
 				printf("Processo: (%s) inválido. Tempo de execução excede o limite permitido.\n", processName);
 			}
-
-			i++;
-
-			sleep(1);
+			
+			/*antiga forma de verificar
+			lstProcess[i] = verifyProcess(lstProcess[i]); // verifica se inicio + duracao > 59, se for anula o processo colocando flag de -1 em lstProcesso.inicio*/
 		}
-		lstProcess[i].last = -1; // ultimo a ser lido no arquivo
+
+		lstProcess[i - 1].last = TRUE; // ultimo a ser lido no arquivo
 		
 	}
 	else if(pid > 0){ // processo pai
@@ -66,9 +70,4 @@ int main(void)
 
 	fclose(fp); // fecha o arquivo
 	return 0;
-}
-
-Process verifyProcess(Process lstProcess){
-	if((lstProcess.duration + lstProcess.init) > 59) lstProcess.init = -1;
-	return lstProcess;
 }

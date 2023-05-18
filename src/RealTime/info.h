@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+#define FALSE 0
+#define TRUE 1
+
 #define SHM_KEY 8000
 #define MAX_PROCESSOS 20
 #define EVER ;;

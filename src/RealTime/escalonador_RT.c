@@ -12,10 +12,12 @@
 #include "info.h"
 
 int main(void){
-	Process * processInfo;
+	Process* processInfo;
+	Process currentP;
 	int shared_memory, sec;
-	pid_t pid1, pid2, pid3;
-	struct timeval tv;
+	int i, j;
+	pid_t pid1;
+	struct timeval t1;
 	
 	// Obter o identificador da memória compartilhada
 	shared_memory = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Process), IPC_CREAT | 0666);
@@ -27,37 +29,59 @@ int main(void){
 		exit(1);
 	}
 
-	int i = 0;	
+	i = 0;	
 	for (EVER) {
-		puts("entrei\n");
 		sleep(1); //espera o interpretador preencher o vetor
 
-		if(processInfo[i].last == -1) {
-			break;
-		}
-		
-		printf("\nEscalonador recebendo:\n");
-		printf("Nome do processo: %s  //  Índice: %d  //  Início: %d  //  Duração: %d\n", processInfo[i].name, processInfo[i].index, processInfo[i].init, processInfo[i].duration);
-		i++;
+		currentP = processInfo[0];
+		printf("%s\n", currentP.name);
 
-		gettimeofday(&tv, NULL);
-		sec = tv.tv_sec%60;
-		if (sec == 5) {
-			kill(SIGSTOP, pid3);
+		// printf("\nEscalonador recebendo:\n");
+		// printf("Nome do processo: %s  //  Índice: %d  //  Início: %d  //  Duração: %d\n", processInfo[i].name, processInfo[i].index, processInfo[i].init, processInfo[i].duration);
+
+		//realTime(Queue* pronto);
+		
+
+		gettimeofday(&t1, NULL);
+		sec = (t1.tv_sec % 60);
+
+		if (sec == currentP.init){
+			puts("Entrei");
 			kill(SIGCONT, pid1);
-		}
-		if (sec == 25) {
+			sleep(currentP.duration);
 			kill(SIGSTOP, pid1);
-			kill(SIGCONT, pid3);
+
+			currentP.duration = 0;
 		}
-		if (sec == 45) {
-			kill(SIGSTOP, pid3);
-			kill(SIGCONT, pid2);
+
+
+		if (currentP.last != TRUE){
+			//printf("%s\n", currentP.name);
+			printf("currentP.init = %d\n", currentP.init);
+			printf("currentP.duration = %d\n", currentP.duration);
+			printf("currentP.last = %d\n\n", currentP.last);
+
+			i++;
+        }
+			
+		else{
+			puts("ultima vez");
+			printf("sec = %d\n\n", sec);
 		}
-		if (sec == 0) {
-			kill(SIGSTOP, pid2);
-			kill(SIGCONT, pid3);
+	}
+
+	for (int z = 0; z < i; z++){
+		for (j = z + 1; j < i; j++) {
+			if (processInfo[j].init < processInfo[z].init){
+				Process temp = processInfo[z];
+				processInfo[z] = processInfo[j];
+				processInfo[j] = temp;
+			}
 		}
+	}
+	
+	for (int j = 0; j < i; j++) {
+		printf("processInfo[%d] = %s\n", j, processInfo[j].name);
 	}
 
 	// libera a memória compartilhada
