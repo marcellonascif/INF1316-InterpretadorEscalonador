@@ -9,14 +9,17 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-#include "info.h"
+#include "queue.h"
 
 int main(void){
-	Process* processInfo;
 	Process currentP;
+	Process* processInfo;
+	
 	int shared_memory, sec;
 	int i, j;
+
 	pid_t pid1;
+
 	struct timeval t1;
 	
 	// Obter o identificador da memória compartilhada
@@ -29,11 +32,20 @@ int main(void){
 		exit(1);
 	}
 
+	Queue filaRR;
+	Queue filaRT;
+	Queue filaIO;
+
+	initQueue(&filaRR);
+	initQueue(&filaRT);
+	initQueue(&filaIO);
+
 	i = 0;	
+
 	for (EVER) {
 		sleep(1); //espera o interpretador preencher o vetor
 
-		currentP = processInfo[0];
+		currentP = processInfo[i];
 		printf("%s\n", currentP.name);
 
 		// printf("\nEscalonador recebendo:\n");
@@ -51,8 +63,13 @@ int main(void){
 			sleep(currentP.duration);
 			kill(SIGSTOP, pid1);
 
-			currentP.duration = 0;
 		}
+		/* Processo do RoundRobin
+		else{
+			kill(SIGCONT, pid1);
+			sleep(1);
+			kill(SIGSTOP, pid1);
+		}*/
 
 
 		if (currentP.last != TRUE){
@@ -60,6 +77,8 @@ int main(void){
 			printf("currentP.init = %d\n", currentP.init);
 			printf("currentP.duration = %d\n", currentP.duration);
 			printf("currentP.last = %d\n\n", currentP.last);
+			
+			enqueue(&filaRT, currentP);
 
 			i++;
         }
@@ -67,10 +86,11 @@ int main(void){
 		else{
 			puts("ultima vez");
 			printf("sec = %d\n\n", sec);
+			break;
 		}
 	}
 
-	for (int z = 0; z < i; z++){
+	/*for (int z = 0; z < i; z++){
 		for (j = z + 1; j < i; j++) {
 			if (processInfo[j].init < processInfo[z].init){
 				Process temp = processInfo[z];
@@ -78,7 +98,9 @@ int main(void){
 				processInfo[j] = temp;
 			}
 		}
-	}
+	}*/
+
+	displayQueue(&filaRT);
 	
 	for (int j = 0; j < i; j++) {
 		printf("processInfo[%d] = %s\n", j, processInfo[j].name);

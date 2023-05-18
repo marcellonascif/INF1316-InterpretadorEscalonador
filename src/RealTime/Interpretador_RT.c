@@ -8,7 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 
-#include "info.h"
+#include "queue.h"
 
 int main(void)
 {
