@@ -10,8 +10,6 @@
 
 #include "info.h"
 
-
-
 int main(void){
     StrProcess * processInfo;
     int shared_memory;
@@ -25,12 +23,18 @@ int main(void){
         perror("Erro ao anexar à memória compartilhada.\n");
         exit(1);
     }
+
     int i = 0;
+
     while(1){
         sleep(1); //espera o interpretador preencher o vetor
-        if(processInfo[i].last == -1) break;
+
+        if(processInfo[i].last == -1) {
+            break;
+        }
+        
         printf("\nEscalonador recebendo:\n");
-        printf("Nome do processo: %s  //  Índice: %d  //  Início: %d  //  Duração: %d\n", processInfo[i].processName, processInfo[i].index, processInfo[i].init, processInfo[i].duration);
+        printf("Nome do processo: %s  //  Índice: %d  //  Início: %d  //  Duração: %d\n", processInfo[i].name, processInfo[i].index, processInfo[i].init, processInfo[i].duration);
         i++;
     }
 

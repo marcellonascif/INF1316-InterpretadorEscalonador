@@ -7,12 +7,10 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <sys/types.h>
+
 #include "info.h"
 
-
-
 StrProcess verifyProcess(StrProcess lstProcess); 
-
 
 int main(void)
 {
@@ -38,27 +36,29 @@ int main(void)
 		exit(1);
 	} // Trata problema ao abrir o arquivo
     
-    pid_t pid;
-	pid = fork();
+	pid_t pid = fork();
 	if(pid == 0){ // processo filho
 		while (fscanf(fp, "%*s <%[^>]> I=<%d> D=<%d>", processName, &inicio, &duracao) != EOF){ // lê cada linha do arquivo
-        lstProcess[i].init = inicio;
-        lstProcess[i].duration = duracao;
-		lstProcess[i].index = i;
-		strcpy(lstProcess[i].processName, processName);
-		printf("\nIntepretador:\nComando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].processName, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
+			lstProcess[i].init = inicio;
+			lstProcess[i].duration = duracao;
+			lstProcess[i].index = i;
+			strcpy(lstProcess[i].name, processName);
+			printf("\nIntepretador:\nComando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].name, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
 
-		lstProcess[i] = verifyProcess(lstProcess[i]); // verifica se inicio + duracao > 59, se for anula o processo colocando flag de -1 em lstProcesso.inicio
+			lstProcess[i] = verifyProcess(lstProcess[i]); // verifica se inicio + duracao > 59, se for anula o processo colocando flag de -1 em lstProcesso.inicio
 
-		if(lstProcess[i].init == -1) printf("Processo: (%s) inválido. Tempo de execução excede o limite permitido.\n", processName);
-		i++;
+			if(lstProcess[i].init == -1){
+				printf("Processo: (%s) inválido. Tempo de execução excede o limite permitido.\n", processName);
+			}
 
-		sleep(1);
+			i++;
+
+			sleep(1);
 		}
 		lstProcess[i].last = -1; // ultimo a ser lido no arquivo
 		
 	}
-	if(pid > 0){ // processo pai
+	else if(pid > 0){ // processo pai
 		char *argv[] = {NULL};
 		// sleep(1);
         execvp("./escalonador_RT", argv); //executa o escalonador

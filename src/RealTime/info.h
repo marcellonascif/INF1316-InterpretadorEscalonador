@@ -1,21 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/shm.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <sys/types.h>
 
 #define SHM_KEY 8000
 #define MAX_PROCESSOS 20
 
-struct strProcess{
-    int index;
-    char processName[10];
-    int init;
-    char initP; 
-    int duration;
-    int last;
-}; typedef struct strProcess StrProcess;
+typedef struct process{
+    char name[10]; // Nome do Programa
+    int index;     // Numero do processo
+    int init;      // Inicio (tempo)
+    int duration;  // tempo de duracao
+    int last;      // é o último (0 = false | 1 = true)
+} Process;
+
+/*typedef struct process {
+    char name[10]; // Nome do Programa
+    int pid;
+    Status status; // Estado atual do processo
+    int execTime;
+    int waitTime;
+    int io; // 0: Não 1: Sim
+    struct process* prox;
+} Process;*/

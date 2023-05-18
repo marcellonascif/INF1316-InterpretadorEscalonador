@@ -1,17 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define SHM_KEY 7000
+#define SHM_KEY1 7000
+#define SHM_KEY2 2500
 #define MAX_PROCESSOS 20
 
 enum status {
     PRONTO, PROCESSANDO, ESPERA
 }; typedef enum status Status;
 
-struct strProcess{
+typedef struct strProcess{
     int index;
-    char processName[10];
-}; typedef struct strProcess StrProcess;
+    char name[10];
+} StrProcess;
 
 
 struct process {
