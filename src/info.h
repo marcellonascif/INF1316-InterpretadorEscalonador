@@ -4,6 +4,9 @@
 #define FALSE 0
 #define TRUE 1
 
+#define REAL_TIME 0
+#define ROUND_ROBIN 1
+
 #define SHM_KEY 1000
 #define SHM_KEY2 7000
 
@@ -16,7 +19,7 @@ typedef struct process
     int index;     // Numero do processo
     int init;      // Inicio (tempo)
     int duration;  // tempo de duracao
-    int policy;    // 0 = realtime | 1 = roundrobin
+    int policy;    // 0 = REAL_TIME | 1 = ROUND_ROBIN
     pid_t pid;
 } Process;
 

@@ -43,15 +43,17 @@ int main(void)
 	pid_t pid = fork();
 	if (pid == 0){ // processo filho
 		while (fscanf(fp, "%*s <%[^>]> %c=<%d> D=<%d>", processName, &policy, &inicio, &duracao) != EOF){ // lê cada linha do arquivo
+			
 			if(policy == 'I'){ // REAL TIME
-				printf("Real time\n");
+				//printf("Real time\n");
 				if (isOK(lstProcess, i, inicio, duracao)){
 					strcpy(lstProcess[i].name, processName);
 					lstProcess[i].index = i;
 					lstProcess[i].init = inicio;
+					lstProcess[i].duration = duracao;
+					lstProcess[i].policy = REAL_TIME;
 
 					i++;
-
 					sleep(1);
 					//printf("\nIntepretador:\nComando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].name, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
 				}
@@ -61,10 +63,13 @@ int main(void)
 				}
 			}
 			else{  // ROUND ROBIN
-				printf("Round-Robin\n");
+				//printf("Round-Robin\n");
 				strcpy(lstProcess[i].name, processName);
 				lstProcess[i].index = i;
-				lstProcess[i].duration = duracao;
+				lstProcess[i].init = -1;
+				lstProcess[i].duration = 1;
+				lstProcess[i].policy = ROUND_ROBIN;
+
 				i++;
 				sleep(1);
 			}
@@ -97,5 +102,4 @@ int isOK(Process *lp, int tam, int inicio, int duracao){
 	}
 
 	return TRUE;
-
 }
