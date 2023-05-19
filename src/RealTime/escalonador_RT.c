@@ -15,21 +15,16 @@
 char* concatenarStrings(const char* str1, const char* str2);
 void execProcess(Process currentP);
 
-int main(void)
-{
+int main(void){
 	int shared_memory, shmid_pid;
 	Process currentP;
 	Process *processInfo;
 	pid_t* pid;
 	
 	int i = 0;
-	float sec;
-
+	
 	struct timeval init, end;
-
-	// Obter o identificador da memória compartilhada
-	
-	
+	float sec;
 
 	// Anexar à memória compartilhada
 	shared_memory = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Process), IPC_CREAT | 0666);
@@ -40,6 +35,7 @@ int main(void)
 		exit(1);
 	}
 
+	// Anexar à memória compartilhada
 	shmid_pid = shmget(SHM_KEY2, sizeof(pid_t), IPC_CREAT | 0666);
 	pid = shmat(shmid_pid, 0, 0);
 
@@ -60,30 +56,20 @@ int main(void)
 		sleep(1); // espera o interpretador preencher o vetor
 		printf("tempo: %.1f s\n", sec);
 		
-		if(currentP.last != -1){
+		if(processInfo[i].index == i){ // Se o processo não for o ultimo entra aqui
 			currentP = processInfo[i];
-			printf("\n%s\n", currentP.name);
-		} 
-		
-		if(currentP.last == FALSE){ // Se o processo não for o ultimo entra aqui
+
+			printf("currentP.name = %s\n", currentP.name);
 			printf("currentP.init = %d\n", currentP.init);
 			printf("currentP.duration = %d\n", currentP.duration);
-			printf("currentP.last = %d\n\n", currentP.last);
-			enqueue(&filaRT, currentP);
-			queueSort(&filaRT);
-			// displayQueue(&filaRT); //Imprime Fila de processos Real-Time
-			i++;
-		}
 
-		else if(currentP.last == TRUE){ // Se o processo for o último entra aqui
-			//printf("\n%s\n", currentP.name);
-			printf("currentPinit = %d\n", currentP.init);
-			printf("currentP.duration = %d\n", currentP.duration);
-			printf("currentP.last = %d\n\n", currentP.last);
 			enqueue(&filaRT, currentP);
 			queueSort(&filaRT);
-			displayQueue(&filaRT); //Imprime Fila de processos Real-Time
-			currentP.last = -1;
+			//displayQueue(&filaRT); //Imprime Fila de processos Real-Time
+
+			printf("currentP.index = %d\n", currentP.index);
+			printf("i = %d\n\n", i);
+			i++;
 		}
 
 		if (filaRT.front->process.init == sec){  // Primeiro da fila entra em execução
@@ -103,18 +89,18 @@ int main(void)
 			displayQueue(&filaRT); //Imprime Fila de processos Real-Time
 
 		}
-		/* Processo do RoundRobin */
+		/* Processo do RoundRobin 
 		else{
 
 			sleep(1);
 			kill(SIGSTOP, pid1);
-		}
-		
+		}*/
 	}
 
 	// libera a memória compartilhada
 	shmctl(shared_memory, IPC_RMID, 0);
 	shmctl(shmid_pid, IPC_RMID, 0);
+	
 	return 0;
 }
 
@@ -146,7 +132,7 @@ void execProcess(Process p){
 	
 	if(fork() == 0){
 		printf("Executando o %s\n", path);
-			execvp(path, argv);
+		execvp(path, argv);
 	} 
 	return;
 }

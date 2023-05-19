@@ -4,8 +4,8 @@
 #define FALSE 0
 #define TRUE 1
 
-#define SHM_KEY 8000
-#define SHM_KEY2 5000
+#define SHM_KEY 1000
+#define SHM_KEY2 7000
 
 #define MAX_PROCESSOS 20
 #define EVER ;;
@@ -16,7 +16,7 @@ typedef struct process
     int index;     // Numero do processo
     int init;      // Inicio (tempo)
     int duration;  // tempo de duracao
-    int last;      // é o último (0 = false | 1 = true)
+    int policy;    // 0 = realtime | 1 = roundrobin
     pid_t pid;
 } Process;
 

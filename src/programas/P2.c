@@ -4,22 +4,28 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/time.h>
 
 #define EVER ;;
-#define SHM_KEY2 5000
+#define SHM_KEY2 7000
 
 
 
 int main(void){
-    int shmid_pid;
-    pid_t *pid;
-    shmid_pid = shmget(SHM_KEY2, 20 * sizeof(pid_t), IPC_CREAT | 0666);
-    pid = shmat(shmid_pid, 0, 0);
+    struct timeval init, end;
+    float sec;
+
+    int shmid_pid = shmget(SHM_KEY2, 20 * sizeof(pid_t), IPC_CREAT | 0666);
+    pid_t* pid = shmat(shmid_pid, 0, 0);
+
+    gettimeofday(&init, NULL);
+
     *pid = getpid();
-    printf("Processo 2 - pid: %d\n", *pid);
 
     for(EVER){
-        printf("executando programa 2\n");
+        gettimeofday(&end, NULL);
+        sec = ((end.tv_sec - init.tv_sec) % 60) + 1;
+        printf("%.1f s\n", sec);
         sleep(1);
     }
 
