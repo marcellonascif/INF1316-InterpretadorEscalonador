@@ -60,6 +60,7 @@ int main(void)
         sec = ((end.tv_sec - init.tv_sec) % 60);
         sleep(1); // espera o interpretador preencher o vetor
         printf("tempo: %.1f s\n", sec);
+        
         if(currentP.last != -1){
             currentP = processInfo[i];
             printf("\n%s\n", currentP.name);
