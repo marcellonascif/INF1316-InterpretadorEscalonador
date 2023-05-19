@@ -2,13 +2,6 @@
 #include <stdlib.h>
 
 #include "info.h"
-// #include "queue.h"
-
-// typedef struct queue
-// {
-//     Node *front;
-//     Node *rear;
-// } Queue;
 
 void initQueue(Queue *q)
 {
@@ -87,7 +80,7 @@ void displayQueue(Queue *q)
 
     while (temp != NULL)
     {
-        printf("%s\nInício: %d' \n", temp->process.name, temp->process.init);
+        printf("%s\nInício: %d' \nDuração: %d' \n", temp->process.name, temp->process.init, temp->process.duration);
         temp = temp->next;
     }
 

@@ -5,10 +5,10 @@
 #define TRUE 1
 
 #define SHM_KEY 8000
+#define SHM_KEY2 5000
+
 #define MAX_PROCESSOS 20
-#define EVER \
-    ;        \
-    ;
+#define EVER ;;
 
 typedef struct process
 {
@@ -20,12 +20,11 @@ typedef struct process
     pid_t pid;
 } Process;
 
-typedef struct node Node;
-struct node
+typedef struct node
 {
     Process process;
-    Node *next;
-};
+    struct node *next;
+} Node;
 
 typedef struct queue
 {

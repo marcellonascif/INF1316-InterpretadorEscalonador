@@ -11,11 +11,11 @@
 
 
 int main(void){
-    int shmid_pid;
-    pid_t *pid;
-    shmid_pid = shmget(SHM_KEY2, 20 * sizeof(pid_t), IPC_CREAT | 0666);
-    pid = shmat(shmid_pid, 0, 0);
+    int shmid_pid = shmget(SHM_KEY2, sizeof(pid_t), IPC_CREAT | 0666);
+    pid_t* pid = shmat(shmid_pid, 0, 0);
+
     *pid = getpid();
+
     printf("Processo 1 - pid: %d\n", *pid);
 
     for(EVER){
