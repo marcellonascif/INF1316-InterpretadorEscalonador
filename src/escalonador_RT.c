@@ -61,35 +61,26 @@ int main(void){
 
 	for (EVER)
 	{
+
 		gettimeofday(&end, NULL);
 		sec = ((end.tv_sec - init.tv_sec) % 60);
 		printf("\ntempo: %.1f s\n", sec);
 		
-		if (processInfo[i].index == i){
-				sleep(1); // espera o interpretador preencher o vetor
-				currentP = processInfo[i];
-
-				// printf("currentP.name = %s\n", currentP.name);
-				// printf("currentP.init = %d\n", currentP.init);
-				// printf("currentP.duration = %d\n", currentP.duration);
-				// printf("currentP.policy = %s\n\n", (currentP.policy == REAL_TIME? "Real time" : "Round Robin"));
+		if (processInfo[i].index == i){/*Se ainda recebe processo entra aqui*/ 
+			currentP = processInfo[i];
 
 			if (currentP.policy == REAL_TIME){
 				enqueue(&filaRT, currentP);
 				queueSort(&filaRT);
-				//displayQueue(&filaRT); //Imprime Fila de processos Real-Time
 			}
 
 			else if (currentP.policy == ROUND_ROBIN){
 				enqueue(&filaRR, currentP);
 				queueSort(&filaRR);
-				//displayQueue(&filaRR); //Imprime Fila de processos Real-Time
 			}
 
-			// printf("currentP.index = %d\n", currentP.index);
-			// printf("i = %d\n\n", i);
 			i++;
-		} // Se o processo não for o ultimo entra aqui
+		} 
 
 
 	/*Inicia a execução dos processos*/ 
@@ -137,15 +128,16 @@ int main(void){
 			// printf("***************\n%s pid lido pelo escalonador: %d\n******************\n", p.name, p.pid);
 			
 			dequeue(&filaRR);
-            if(io_bound == TRUE){
+            /*if(io_bound == TRUE){
+				puts("Sou TRUE");
                 if(fork() == 0){
                     enqueue(&filaIO, p);
-					puts("Entrou na fila de espera");
+					printf("Processo = %s -- PID = %d -- Entrou IO\n", p.name, p.pid);
                     sleep(3);
                     dequeue(&filaIO);
                     io_bound = FALSE;
                 }
-            }
+            }*/
 			enqueue(&filaRR, p);
 			//displayQueue(&filaRR); //Imprime Fila de processos Round-Robin
 		}
@@ -159,15 +151,16 @@ int main(void){
 }
 
 void handler1(int sig) {
-	io_bound = TRUE ;
+	puts("Entrei no handler");
+	io_bound = TRUE;
 }
 
-/*char* concatenarStrings(const char* str1, const char* str2) {
+char* concatenarStrings(const char* str1, const char* str2) {
 	size_t tamanhoStr1 = strlen(str1);
 	size_t tamanhoStr2 = strlen(str2);
 	size_t tamanhoTotal = tamanhoStr1 + tamanhoStr2 + 1;
 
-	char* resultado = 
+	char* resultado = (char*)malloc(tamanhoTotal);
 
 	if (resultado == NULL) {
 		perror("Erro ao alocar memória");
@@ -178,15 +171,22 @@ void handler1(int sig) {
 	strcat(resultado, str2);
 
 	return resultado;
-}*/
+}
 
 void execProcess(Process p){
-	char *argv[] = {NULL};
 	char inicioPath[] = "./programas/";
-	int tam = strlen(inicioPath) + strlen(p.name);
-	char *path = (char*)malloc(tam);
+	char *path;
 
-	*path = strcat(inicioPath, p.name);
+	path = concatenarStrings(inicioPath, p.name);
+
+	// int pidPai = getpid();
+
+	// char tmp_pidPai[24]; // usado apenas para converter o pid do pai para string pra poder passar como argumento (ja que todos devem ser passados como string)
+    // sprintf(tmp_pidPai, "%d", pidPai);
+
+	// printf("pidpai = %s\n\n", tmp_pidPai);
+	
+	char *argv[] = {NULL};
 	
 	if(fork() == 0){
 		printf("Executando o %s\n", path);

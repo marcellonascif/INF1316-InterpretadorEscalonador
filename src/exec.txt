@@ -1,6 +1,5 @@
 Run <P1>
 Run <P2>
-Run <P3> I=<10> D=<10>
+Run <P3> I=<5> D=<10>
 Run <P4> I=<35> D=<5>
 Run <P5>
-Dun <P4> I=<45> D=<5>

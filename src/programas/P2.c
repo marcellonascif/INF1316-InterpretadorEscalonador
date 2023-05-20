@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/shm.h>
@@ -10,17 +12,19 @@
 
 
 
-int main(void){
+int main(int argc, char* argv[]){
 
     int shmid_pid = shmget(SHM_KEY2, sizeof(pid_t), IPC_CREAT | 0666);
     pid_t* pid = shmat(shmid_pid, 0, 0);
-
     *pid = getpid();
+
+    // pid_t pidPai = atoi(argv[1]);
 
     printf("Programa 2 - pid: %d\n", *pid);
     
     for(EVER){
         printf("P2\n");
+        //kill(pidPai, SIGUSR1);
         sleep(1);
     }
 
