@@ -12,8 +12,12 @@
 #include "info.h"
 
 //Protótipos:
+void handler1(int sig);
 char* concatenarStrings(const char* str1, const char* str2);
 void execProcess(Process currentP);
+
+//Globais:
+int io_bound = FALSE;
 
 int main(void){
 	int shared_memory, shmid_pid;
@@ -51,6 +55,8 @@ int main(void){
 
 	gettimeofday(&init, NULL);
 
+	signal(SIGUSR1, handler1); // recebeu sinal de IO bound
+
 	Process p;
 
 	for (EVER)
@@ -63,10 +69,10 @@ int main(void){
 				sleep(1); // espera o interpretador preencher o vetor
 				currentP = processInfo[i];
 
-				printf("currentP.name = %s\n", currentP.name);
-				printf("currentP.init = %d\n", currentP.init);
-				printf("currentP.duration = %d\n", currentP.duration);
-				printf("currentP.policy = %s\n\n", (currentP.policy == REAL_TIME? "Real time" : "RoundRobin"));
+				// printf("currentP.name = %s\n", currentP.name);
+				// printf("currentP.init = %d\n", currentP.init);
+				// printf("currentP.duration = %d\n", currentP.duration);
+				// printf("currentP.policy = %s\n\n", (currentP.policy == REAL_TIME? "Real time" : "Round Robin"));
 
 			if (currentP.policy == REAL_TIME){
 				enqueue(&filaRT, currentP);
@@ -85,36 +91,61 @@ int main(void){
 			i++;
 		} // Se o processo não for o ultimo entra aqui
 
-		if (filaRT.front->process.init == sec){  // Primeiro da fila entra em execução
+
+	/*Inicia a execução dos processos*/ 
+		/* Processo do Real Time */
+		if ((!isEmpty(&filaRT)) && (filaRT.front->process.init == sec)) {  // Primeiro da fila entra em execução
 		   
 			p = filaRT.front->process;
-			execProcess(p); // Executa processo e armazena seu pid em currentP.pid
-			sleep(p.duration);
-			//kill(p.pid, SIGCONT);
+			if (!p.started){
+				execProcess(p); // Executa processo e armazena seu pid em currentP.pid
+				sleep(p.duration);
+				p.pid = *pid;
+				p.started = TRUE;
+			}
+			else{
+				kill(p.pid, SIGCONT);
+				sleep(p.duration);
+			}
 
-			p.pid = *pid;
-			//printf("***************\n%s pid lido pelo escalonador: %d\n******************\n", p.name, p.pid);
-			
 			kill(p.pid, SIGSTOP);
+
+			// printf("***************\n%s pid lido pelo escalonador: %d\n******************\n", p.name, p.pid);
 			
 			dequeue(&filaRT);
 			enqueue(&filaRT, p);
 			// displayQueue(&filaRT); //Imprime Fila de processos Real-Time
 
 		}
-		/* Processo do RoundRobin */
+		/* Processo do Round Robin */
 		else if (!isEmpty(&filaRR)){
 			p = filaRR.front->process;
-			execProcess(p); // Executa processo e armazena seu pid em currentP.pid
-			sleep(p.duration);
-			//kill(p.pid, SIGCONT);
-
-			p.pid = *pid;
-			//printf("***************\n%s pid lido pelo escalonador: %d\n******************\n", p.name, p.pid);
 			
+			if (!p.started){
+				execProcess(p); // Executa processo e armazena seu pid em currentP.pid
+				sleep(p.duration);
+				p.pid = *pid;
+				p.started = TRUE;
+			}
+			else{
+				kill(p.pid, SIGCONT);
+				sleep(p.duration);
+			}
+
 			kill(p.pid, SIGSTOP);
 			
+			// printf("***************\n%s pid lido pelo escalonador: %d\n******************\n", p.name, p.pid);
+			
 			dequeue(&filaRR);
+            if(io_bound == TRUE){
+                if(fork() == 0){
+                    enqueue(&filaIO, p);
+					puts("Entrou na fila de espera");
+                    sleep(3);
+                    dequeue(&filaIO);
+                    io_bound = FALSE;
+                }
+            }
 			enqueue(&filaRR, p);
 			//displayQueue(&filaRR); //Imprime Fila de processos Round-Robin
 		}
@@ -127,13 +158,16 @@ int main(void){
 	return 0;
 }
 
+void handler1(int sig) {
+	io_bound = TRUE ;
+}
 
-char* concatenarStrings(const char* str1, const char* str2) {
+/*char* concatenarStrings(const char* str1, const char* str2) {
 	size_t tamanhoStr1 = strlen(str1);
 	size_t tamanhoStr2 = strlen(str2);
 	size_t tamanhoTotal = tamanhoStr1 + tamanhoStr2 + 1;
 
-	char* resultado = (char*)malloc(tamanhoTotal);
+	char* resultado = 
 
 	if (resultado == NULL) {
 		perror("Erro ao alocar memória");
@@ -144,14 +178,15 @@ char* concatenarStrings(const char* str1, const char* str2) {
 	strcat(resultado, str2);
 
 	return resultado;
-}
+}*/
 
 void execProcess(Process p){
-	char inicioPath[] = "./programas/";
-	char *path;
 	char *argv[] = {NULL};
+	char inicioPath[] = "./programas/";
+	int tam = strlen(inicioPath) + strlen(p.name);
+	char *path = (char*)malloc(tam);
 
-	path = concatenarStrings(inicioPath, p.name);
+	*path = strcat(inicioPath, p.name);
 	
 	if(fork() == 0){
 		printf("Executando o %s\n", path);

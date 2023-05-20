@@ -43,7 +43,7 @@ int main(void)
 	pid_t pid = fork();
 	if (pid == 0){ // processo filho
 		while (fscanf(fp, "%*s <%[^>]> %c=<%d> D=<%d>", processName, &policy, &inicio, &duracao) != EOF){ // lê cada linha do arquivo
-			
+			printf("name = %s\npolitica = %c\ninicio = %d\nduracao = %d", processName, policy, inicio, duracao);
 			if(policy == 'I'){ // REAL TIME
 				//printf("Real time\n");
 				if (isOK(lstProcess, i, inicio, duracao)){
@@ -52,6 +52,7 @@ int main(void)
 					lstProcess[i].init = inicio;
 					lstProcess[i].duration = duracao;
 					lstProcess[i].policy = REAL_TIME;
+					lstProcess[i].started = FALSE;
 
 					i++;
 					sleep(1);
@@ -69,6 +70,7 @@ int main(void)
 				lstProcess[i].init = -1;
 				lstProcess[i].duration = 1;
 				lstProcess[i].policy = ROUND_ROBIN;
+				lstProcess[i].started = FALSE;
 
 				i++;
 				sleep(1);
@@ -97,7 +99,7 @@ int isOK(Process *lp, int tam, int inicio, int duracao){
 		}
 	}
 
-	if ((inicio + duracao) > 59){
+	if ((inicio + duracao) > 60){
 		return FALSE;
 	}
 

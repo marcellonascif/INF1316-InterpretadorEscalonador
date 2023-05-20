@@ -15,11 +15,12 @@
 
 typedef struct process
 {
-    char name[10]; // Nome do Programa
+    char name[8]; // Nome do Programa
     int index;     // Numero do processo
     int init;      // Inicio (tempo)
     int duration;  // tempo de duracao
     int policy;    // 0 = REAL_TIME | 1 = ROUND_ROBIN
+    int started;   // rodou uma vez ou não
     pid_t pid;
 } Process;
 
