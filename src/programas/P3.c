@@ -20,6 +20,8 @@ int main(void){
     gettimeofday(&init, NULL);
 
     *pid = getpid();
+
+    puts("P3");
     
     for(EVER){
         gettimeofday(&end, NULL);

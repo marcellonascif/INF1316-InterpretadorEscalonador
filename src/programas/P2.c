@@ -21,6 +21,8 @@ int main(void){
 
     *pid = getpid();
 
+    puts("P2");
+    
     for(EVER){
         gettimeofday(&end, NULL);
         sec = ((end.tv_sec - init.tv_sec) % 60) + 1;
