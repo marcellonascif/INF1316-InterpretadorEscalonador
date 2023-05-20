@@ -64,15 +64,16 @@ void displayQueue(Queue *q)
     }
 
     Node *temp = q->front;
-    printf("Elementos da fila:\n");
+    printf("*******************\n");
 
     while (temp != NULL)
     {
-        printf("%s\nInício: %d' \nDuração: %d' \n", temp->process.name, temp->process.init, temp->process.duration);
+        // printf("%s\nInício: %d' \nDuração: %d' \n", temp->process.name, temp->process.init, temp->process.duration);
+        printf("%s -> ", temp->process.name);
         temp = temp->next;
     }
 
-    printf("\n");
+    printf("FINAL DA FILA\n*******************\n");
 }
 
 void queueSort(Queue *q)

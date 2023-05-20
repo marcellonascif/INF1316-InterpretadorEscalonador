@@ -84,7 +84,7 @@ int main(void)
 
 	else if (pid > 0){ // processo pai
 		char *argv[] = {NULL};
-		// sleep(1);
+		sleep(1);
 		execvp("./escalonador_RT", argv); // executa o escalonador
 	}
 

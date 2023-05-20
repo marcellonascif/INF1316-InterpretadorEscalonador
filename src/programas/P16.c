@@ -20,7 +20,7 @@ int main(void){
     printf("Programa 16 - pid: %d\n", *pid);
     
     for(EVER){
-        printf("Rodei p16\n");
+        printf("Executando P16...\n");
         sleep(1);
     }
 

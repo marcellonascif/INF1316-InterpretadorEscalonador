@@ -23,7 +23,7 @@ int main(int argc, char* argv[]){
     printf("Programa 2 - pid: %d - pidpai = %d\n", *pid, pidPai);
     
     for(EVER){
-        printf("Rodei p2\n");
+        printf("Executando P2...\n");
         // kill(pidPai, SIGUSR1);
         sleep(1);
     }

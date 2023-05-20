@@ -105,7 +105,8 @@ int main(void){
 			
 			dequeue(&filaRT);
 			enqueue(&filaRT, p);
-			// displayQueue(&filaRT); //Imprime Fila de processos Real-Time
+			printf("\n\nFila Real-Time:\n");
+			displayQueue(&filaRT); //Imprime Fila de processos Real-Time
 
 		}
 		/* Processo do Round Robin */
@@ -139,7 +140,8 @@ int main(void){
                 }
             }*/
 			enqueue(&filaRR, p);
-			//displayQueue(&filaRR); //Imprime Fila de processos Round-Robin
+			printf("\n\nFila Round-Robin:\n");
+			displayQueue(&filaRR); //Imprime Fila de processos Round-Robin
 		}
 	}
 
@@ -189,7 +191,7 @@ void execProcess(Process p){
 	char *argv[] = {NULL};
 	
 	if(fork() == 0){
-		printf("Executando o %s\n", path);
+		printf("Iniciando o programa %s\n", path);
 		execvp(path, argv);
 	} 
 	return;
