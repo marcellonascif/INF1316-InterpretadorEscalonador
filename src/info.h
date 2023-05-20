@@ -11,7 +11,6 @@
 #define SHM_KEY2 7000
 
 #define MAX_PROCESSOS 20
-#define EVER ;;
 
 typedef struct process
 {
@@ -40,6 +39,5 @@ void initQueue(Queue *q);
 int isEmpty(Queue *q);
 void enqueue(Queue *q, Process p);
 void dequeue(Queue *q);
-Process frontData(Queue *q);
 void displayQueue(Queue *q);
 void queueSort(Queue *q);

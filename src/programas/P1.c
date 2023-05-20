@@ -8,8 +8,6 @@
 #define EVER ;;
 #define SHM_KEY2 7000
 
-
-
 int main(void){
 
     int shmid_pid = shmget(SHM_KEY2, sizeof(pid_t), IPC_CREAT | 0666);

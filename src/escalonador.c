@@ -12,12 +12,14 @@
 #include "info.h"
 
 //Protótipos:
-void handler1(int sig);
+// void handler1(int sig);
+void handler(int sig);
 char* concatenarStrings(const char* str1, const char* str2);
 void execProcess(Process currentP);
 
 //Globais:
-int io_bound = FALSE;
+// int io_bound = FALSE;
+int termina = FALSE;
 
 int main(void){
 	int shared_memory, shmid_pid;
@@ -53,18 +55,17 @@ int main(void){
 	initQueue(&filaRT);
 	initQueue(&filaIO);
 
-	gettimeofday(&init, NULL);
-
-	signal(SIGUSR1, handler1); // recebeu sinal de IO bound
-
 	Process p;
 
-	for (EVER)
-	{
+	// signal(SIGUSR1, handler1); // recebeu sinal de IO bound
+	signal(SIGINT, handler); // Se receber interrupção do teclado (Ctrl+C), QUEBRA O LOOP INFINITO
+
+	gettimeofday(&init, NULL);
+	while (!termina){
 
 		gettimeofday(&end, NULL);
 		sec = ((end.tv_sec - init.tv_sec) % 60);
-		printf("\ntempo: %.1f s\n", sec);
+		printf("\n%.1f'\n", sec);
 		
 		if (processInfo[i].index == i){/*Se ainda recebe processo entra aqui*/ 
 			currentP = processInfo[i];
@@ -89,24 +90,22 @@ int main(void){
 		   
 			p = filaRT.front->process;
 			if (!p.started){
-				execProcess(p); // Executa processo e armazena seu pid em currentP.pid
-				sleep(p.duration);
-				p.pid = *pid;
-				p.started = TRUE;
+				execProcess(p); 		// Executa processo pela primeira vez
+				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
+				p.pid = *pid;			// pega o pid do processo
+				p.started = TRUE;		// diz que o processo começou
 			}
 			else{
-				kill(p.pid, SIGCONT);
-				sleep(p.duration);
+				kill(p.pid, SIGCONT);	// Continua o processo já executado uma vez
+				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
 			}
 
 			kill(p.pid, SIGSTOP);
-
-			// printf("***************\n%s pid lido pelo escalonador: %d\n******************\n", p.name, p.pid);
 			
 			dequeue(&filaRT);
 			enqueue(&filaRT, p);
-			printf("\n\nFila Real-Time:\n");
-			displayQueue(&filaRT); //Imprime Fila de processos Real-Time
+			printf("\n\nFila Real Time:\n");
+			displayQueue(&filaRT); //Imprime Fila de processos Real Time
 
 		}
 		/* Processo do Round Robin */
@@ -114,23 +113,20 @@ int main(void){
 			p = filaRR.front->process;
 			
 			if (!p.started){
-				execProcess(p); // Executa processo e armazena seu pid em currentP.pid
-				sleep(p.duration);
-				p.pid = *pid;
-				p.started = TRUE;
+				execProcess(p);  		// Executa processo pela primeira vez	
+				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
+				p.pid = *pid;     		// pega o PID do processo
+				p.started = TRUE;		// diz que o processo começou
 			}
 			else{
-				kill(p.pid, SIGCONT);
-				sleep(p.duration);
+				kill(p.pid, SIGCONT);	// Continua o processo já executado uma vez
+				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
 			}
 
 			kill(p.pid, SIGSTOP);
-			
-			// printf("***************\n%s pid lido pelo escalonador: %d\n******************\n", p.name, p.pid);
-			
+						
 			dequeue(&filaRR);
             /*if(io_bound == TRUE){
-				puts("Sou TRUE");
                 if(fork() == 0){
                     enqueue(&filaIO, p);
 					printf("Processo = %s -- PID = %d -- Entrou IO\n", p.name, p.pid);
@@ -140,22 +136,25 @@ int main(void){
                 }
             }*/
 			enqueue(&filaRR, p);
-			printf("\n\nFila Round-Robin:\n");
-			displayQueue(&filaRR); //Imprime Fila de processos Round-Robin
+			printf("\n\nFila Round Robin:\n");
+			displayQueue(&filaRR); //Imprime Fila de processos Round Robin
 		}
 	}
 
-	// libera a memória compartilhada
+	/* Libera a memória compartilhada */ 
 	shmctl(shared_memory, IPC_RMID, 0);
 	shmctl(shmid_pid, IPC_RMID, 0);
 	
 	return 0;
 }
 
-void handler1(int sig) {
-	puts("Entrei no handler");
-	io_bound = TRUE;
+void handler(int sig) {
+	termina = TRUE;
 }
+
+/*void handler1(int sig) {
+	io_bound = TRUE;
+}*/
 
 char* concatenarStrings(const char* str1, const char* str2) {
 	size_t tamanhoStr1 = strlen(str1);
@@ -180,13 +179,6 @@ void execProcess(Process p){
 	char *path;
 
 	path = concatenarStrings(inicioPath, p.name);
-
-	// int pidPai = getpid();
-
-	// char tmp_pidPai[24]; // usado apenas para converter o pid do pai para string pra poder passar como argumento (ja que todos devem ser passados como string)
-    // sprintf(tmp_pidPai, "%d", pidPai);
-
-	// printf("pidpai = %s\n\n", tmp_pidPai);
 	
 	char *argv[] = {NULL};
 	

@@ -43,9 +43,7 @@ int main(void)
 	pid_t pid = fork();
 	if (pid == 0){ // processo filho
 		while (fscanf(fp, "%*s <%[^>]> %c=<%d> D=<%d>", processName, &policy, &inicio, &duracao) != EOF){ // lê cada linha do arquivo
-			//printf("name = %s\npolitica = %c\ninicio = %d\nduracao = %d", processName, policy, inicio, duracao);
 			if(policy == 'I'){ // REAL TIME
-				//printf("Real time\n");
 				if (isOK(lstProcess, i, inicio, duracao)){
 					strcpy(lstProcess[i].name, processName);
 					lstProcess[i].index = i;
@@ -55,7 +53,6 @@ int main(void)
 					lstProcess[i].started = FALSE;
 
 					i++;
-					//printf("\nIntepretador:\nComando lido: Nome do processo: %s  //  índice: %d  //  Início: %d  // Duração: %d\n", lstProcess[i].name, lstProcess[i].index, lstProcess[i].init, lstProcess[i].duration);
 				}
 				
 				else{
@@ -67,7 +64,6 @@ int main(void)
 				duracao = 1;
 			}
 			else{  // ROUND ROBIN
-				//printf("Round-Robin\n");
 				strcpy(lstProcess[i].name, processName);
 				lstProcess[i].index = i;
 				lstProcess[i].init = -1;
@@ -76,7 +72,6 @@ int main(void)
 				lstProcess[i].started = FALSE;
 
 				i++;
-				
 			}
 			sleep(1);
 		}
@@ -85,7 +80,7 @@ int main(void)
 	else if (pid > 0){ // processo pai
 		char *argv[] = {NULL};
 		sleep(1);
-		execvp("./escalonador_RT", argv); // executa o escalonador
+		execvp("./escalonador", argv); // executa o escalonador
 	}
 
 	fclose(fp); // fecha o arquivo
