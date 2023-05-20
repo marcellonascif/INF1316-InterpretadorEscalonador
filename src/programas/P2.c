@@ -18,13 +18,13 @@ int main(int argc, char* argv[]){
     pid_t* pid = shmat(shmid_pid, 0, 0);
     *pid = getpid();
 
-    // pid_t pidPai = atoi(argv[1]);
+    pid_t pidPai = getppid();
 
-    printf("Programa 2 - pid: %d\n", *pid);
+    printf("Programa 2 - pid: %d - pidpai = %d\n", *pid, pidPai);
     
     for(EVER){
-        printf("P2\n");
-        //kill(pidPai, SIGUSR1);
+        printf("Rodei p2\n");
+        // kill(pidPai, SIGUSR1);
         sleep(1);
     }
 

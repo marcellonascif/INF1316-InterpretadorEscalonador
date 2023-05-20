@@ -1,5 +1,12 @@
-Run <P1>
+Run <P1> I=<10> D=<5>
 Run <P2>
-Run <P3> I=<5> D=<10>
-Run <P4> I=<35> D=<5>
-Run <P5>
+Run <P3> I=<10> D=<5>
+Run <P4>
+Run <P5> I=<20> D=<5>
+Run <P6>
+Run <P7> I=<40> D=<10>
+Run <P8>
+Run <P9> I=<50> D=<5>
+Run <P10> I=<50> D=<15>
+Run <P11> I=<22> D=<10>
+Run <P12> I=<9> D=<5>

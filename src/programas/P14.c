@@ -17,10 +17,10 @@ int main(void){
 
     *pid = getpid();
 
-    printf("Programa 3 - pid: %d\n", *pid);
+    printf("Programa 14 - pid: %d\n", *pid);
     
     for(EVER){
-        printf("Rodei p3\n");
+        printf("Rodei p14\n");
         sleep(1);
     }
 

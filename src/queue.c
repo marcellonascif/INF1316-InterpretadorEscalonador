@@ -55,18 +55,6 @@ void dequeue(Queue *q)
     free(temp); // Libera o antigo primeiro da fila
 }
 
-// Process frontData(Queue *q)
-// {
-//     if (isEmpty(q))
-//     {
-//         printf("A fila está vazia. Nenhum elemento na frente.\n");
-//         Process emptyProcess;
-//         return emptyProcess;
-//     }
-
-//     return q->front->process;
-// }
-
 void displayQueue(Queue *q)
 {
     if (isEmpty(q))
@@ -76,7 +64,7 @@ void displayQueue(Queue *q)
     }
 
     Node *temp = q->front;
-    printf("Elementos da fila:\n\n");
+    printf("Elementos da fila:\n");
 
     while (temp != NULL)
     {
