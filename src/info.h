@@ -23,6 +23,11 @@ typedef struct process
     pid_t pid;
 } Process;
 
+typedef struct currentProcess{
+    Process p;
+    int escalonado;
+} CurrentProcess;
+
 typedef struct node
 {
     Process process;

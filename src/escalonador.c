@@ -22,32 +22,25 @@ void execProcess(Process currentP);
 int termina = FALSE;
 
 int main(void){
-	int shared_memory, shmid_pid;
-	Process currentP;
-	Process *processInfo;
+	int shmid_process, shmid_pid;
+	CurrentProcess* processInfo;
 	pid_t* pid;
-	
-	int i = 0;
+
+	Process currentP;
 	
 	struct timeval init, end;
 	float sec;
 
-	// Anexar à memória compartilhada
-	shared_memory = shmget(SHM_KEY, MAX_PROCESSOS * sizeof(Process), IPC_CREAT | 0666);
-	processInfo = (Process *)shmat(shared_memory, 0, 0);
-	if (!processInfo){
-		perror("Erro ao anexar à memória compartilhada do processInfo.\n");
-		exit(1);
-	}
-
-	// Anexar à memória compartilhada
+	// Anexar à memória compartilhada do processo recebido do interpretador
 	shmid_pid = shmget(SHM_KEY2, sizeof(pid_t), IPC_CREAT | 0666);
+	if (!shmid_pid){ perror("Erro ao criar a memória compartilhada do shmid_pid.\n"); exit(1);}
 	pid = shmat(shmid_pid, 0, 0);
-	if (!pid){
-		perror("Erro ao anexar à memória compartilhada do pid.\n");
-		exit(1);
-	}
 
+	// Anexar à memória compartilhada do pid recebido pelo processo executado na fila
+	shmid_process = shmget(SHM_KEY, sizeof(CurrentProcess), IPC_CREAT | 0666);
+	if (!shmid_process){ perror("Erro ao criar a memória compartilhada do shmid_process.\n"); exit(1);}
+	processInfo = (CurrentProcess*)shmat(shmid_process, 0, 0);
+	
 	Queue filaRR;
 	Queue filaRT;
 	Queue filaIO;
@@ -67,82 +60,94 @@ int main(void){
 		sec = ((end.tv_sec - init.tv_sec) % 60);
 		printf("\n%.1f'\n", sec);
 		
-		if (processInfo[i].index == i){/*Se ainda recebe processo entra aqui*/ 
-			currentP = processInfo[i];
+		if (processInfo->escalonado == FALSE){/*Se ainda recebe processo entra aqui*/ 
+			currentP = processInfo->p;
+
+			printf("currentP.name = %s\n", currentP.name);
+			printf("currentP.index = %d\n", currentP.index);
+			printf("currentP.init = %d\n", currentP.init);
+			printf("currentP.duration = %d\n", currentP.duration);
+			printf("escalonado = %s\n", (processInfo->escalonado == 0 ? "Não" : "Sim"));
 
 			if (currentP.policy == REAL_TIME){
 				enqueue(&filaRT, currentP);
 				queueSort(&filaRT);
+				puts("Fila RT");
+				displayQueue(&filaRT);
 			}
 
 			else if (currentP.policy == ROUND_ROBIN){
 				enqueue(&filaRR, currentP);
 				queueSort(&filaRR);
-			}
+				puts("Fila RR");
+				displayQueue(&filaRR);
 
-			i++;
+			}
+			processInfo->escalonado = TRUE;
 		} 
 
 
-	/*Inicia a execução dos processos*/ 
+		/*Inicia a execução dos processos*/ 
 		/* Processo do Real Time */
-		if ((!isEmpty(&filaRT)) && (filaRT.front->process.init == sec)) {  // Primeiro da fila entra em execução
+		// if ((!isEmpty(&filaRT)) && (filaRT.front->process.init == sec)) {  // Primeiro da fila entra em execução
 		   
-			p = filaRT.front->process;
-			if (!p.started){
-				execProcess(p); 		// Executa processo pela primeira vez
-				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
-				p.pid = *pid;			// pega o pid do processo
-				p.started = TRUE;		// diz que o processo começou
-			}
-			else{
-				kill(p.pid, SIGCONT);	// Continua o processo já executado uma vez
-				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
-			}
+		// 	p = filaRT.front->process;
+		// 	if (!p.started){
+		// 		execProcess(p); 		// Executa processo pela primeira vez
+		// 		sleep(p.duration);		// deixa o programa parado pelo tempo do processo
+		// 		p.pid = *pid;			// pega o pid do processo
+		// 		p.started = TRUE;		// diz que o processo começou
+		// 	}
+		// 	else{
+		// 		kill(p.pid, SIGCONT);	// Continua o processo já executado uma vez
+		// 		sleep(p.duration);		// deixa o programa parado pelo tempo do processo
+		// 	}
 
-			kill(p.pid, SIGSTOP);
+		// 	kill(p.pid, SIGSTOP);
 			
-			dequeue(&filaRT);
-			enqueue(&filaRT, p);
-			printf("\n\nFila Real Time:\n");
-			displayQueue(&filaRT); //Imprime Fila de processos Real Time
+		// 	dequeue(&filaRT);
+		// 	enqueue(&filaRT, p);
+		// 	printf("\n\nFila Real Time:\n");
+		// 	displayQueue(&filaRT); //Imprime Fila de processos Real Time
 
-		}
-		/* Processo do Round Robin */
-		else if (!isEmpty(&filaRR)){
-			p = filaRR.front->process;
+		// }
+		// /* Processo do Round Robin */
+		// else if (!isEmpty(&filaRR)){
+		// 	p = filaRR.front->process;
 			
-			if (!p.started){
-				execProcess(p);  		// Executa processo pela primeira vez	
-				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
-				p.pid = *pid;     		// pega o PID do processo
-				p.started = TRUE;		// diz que o processo começou
-			}
-			else{
-				kill(p.pid, SIGCONT);	// Continua o processo já executado uma vez
-				sleep(p.duration);		// deixa o programa parado pelo tempo do processo
-			}
+		// 	if (!p.started){
+		// 		execProcess(p);  		// Executa processo pela primeira vez	
+		// 		sleep(p.duration);		// deixa o programa parado pelo tempo do processo
+		// 		p.pid = *pid;     		// pega o PID do processo
+		// 		p.started = TRUE;		// diz que o processo começou
+		// 	}
+		// 	else{
+		// 		kill(p.pid, SIGCONT);	// Continua o processo já executado uma vez
+		// 		sleep(p.duration);		// deixa o programa parado pelo tempo do processo
+		// 	}
 
-			kill(p.pid, SIGSTOP);
+		// 	kill(p.pid, SIGSTOP);
 						
-			dequeue(&filaRR);
-            /*if(io_bound == TRUE){
-                if(fork() == 0){
-                    enqueue(&filaIO, p);
-					printf("Processo = %s -- PID = %d -- Entrou IO\n", p.name, p.pid);
-                    sleep(3);
-                    dequeue(&filaIO);
-                    io_bound = FALSE;
-                }
-            }*/
-			enqueue(&filaRR, p);
-			printf("\n\nFila Round Robin:\n");
-			displayQueue(&filaRR); //Imprime Fila de processos Round Robin
-		}
+		// 	dequeue(&filaRR);
+        //     /*if(io_bound == TRUE){
+        //         if(fork() == 0){
+        //             enqueue(&filaIO, p);
+		// 			printf("Processo = %s -- PID = %d -- Entrou IO\n", p.name, p.pid);
+        //             sleep(3);
+        //             dequeue(&filaIO);
+        //             io_bound = FALSE;
+        //         }
+        //     }*/
+		// 	enqueue(&filaRR, p);
+		// 	printf("\n\nFila Round Robin:\n");
+		// 	displayQueue(&filaRR); //Imprime Fila de processos Round Robin
+		// }
+		sleep(1);
+
 	}
 
 	/* Libera a memória compartilhada */ 
-	shmctl(shared_memory, IPC_RMID, 0);
+	shmctl(shmid_process, IPC_RMID, 0);
 	shmctl(shmid_pid, IPC_RMID, 0);
 	
 	return 0;
