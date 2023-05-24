@@ -7,6 +7,6 @@ Run <P6>
 Run <P7> I=<40> D=<10>
 Run <P8>
 Run <P9> I=<50> D=<5>
-Run <P10> I=<50> D=<15>
-Run <P11> I=<22> D=<10>
+Run <P10>
+Run <P11>
 Run <P12> I=<9> D=<5>

@@ -64,7 +64,7 @@ void displayQueue(Queue *q)
     }
 
     Node *temp = q->front;
-    printf("*******************\n");
+    // printf("*******************\n");
 
     while (temp != NULL)
     {

@@ -12,8 +12,9 @@
 #include "info.h"
 
 //Protótipos:
-// void handler1(int sig);
 void handler(int sig);
+// void handler1(int sig);
+int alocateProcess(Queue* q, Process p);
 char* concatenarStrings(const char* str1, const char* str2);
 void execProcess(Process currentP);
 
@@ -26,8 +27,6 @@ int main(void){
 	CurrentProcess* processInfo;
 	pid_t* pid;
 
-	Process currentP;
-	
 	struct timeval init, end;
 	float sec;
 
@@ -61,29 +60,23 @@ int main(void){
 		printf("\n%.1f'\n", sec);
 		
 		if (processInfo->escalonado == FALSE){/*Se ainda recebe processo entra aqui*/ 
-			currentP = processInfo->p;
+			Queue* filaAux;
 
-			printf("currentP.name = %s\n", currentP.name);
-			printf("currentP.index = %d\n", currentP.index);
-			printf("currentP.init = %d\n", currentP.init);
-			printf("currentP.duration = %d\n", currentP.duration);
+			if (processInfo->p.policy == REAL_TIME){
+				filaAux = &filaRT;
+			}
+			else if (processInfo->p.policy == ROUND_ROBIN){
+				filaAux = &filaRR;
+			}
+
+			processInfo->escalonado = alocateProcess(filaAux, processInfo->p);
 			printf("escalonado = %s\n", (processInfo->escalonado == 0 ? "Não" : "Sim"));
+			// if (!processInfo->escalonado){ printf("Erro ao escalonar o processo %s", processInfo->p.name); exit(2);}
 
-			if (currentP.policy == REAL_TIME){
-				enqueue(&filaRT, currentP);
-				queueSort(&filaRT);
-				puts("Fila RT");
-				displayQueue(&filaRT);
-			}
-
-			else if (currentP.policy == ROUND_ROBIN){
-				enqueue(&filaRR, currentP);
-				queueSort(&filaRR);
-				puts("Fila RR");
-				displayQueue(&filaRR);
-
-			}
-			processInfo->escalonado = TRUE;
+			puts("Fila RT");
+			displayQueue(&filaRT);
+			puts("Fila RR");
+			displayQueue(&filaRR);
 		} 
 
 
@@ -151,6 +144,18 @@ int main(void){
 	shmctl(shmid_pid, IPC_RMID, 0);
 	
 	return 0;
+}
+
+int alocateProcess(Queue* q, Process p){
+	// printf("p.name = %s\n", p.name);
+	// printf("p.index = %d\n", p.index);
+	// printf("p.init = %d\n", p.init);
+	// printf("p.duration = %d\n", p.duration);
+
+	enqueue(q, p);
+	queueSort(q);
+	
+	return TRUE;
 }
 
 void handler(int sig) {
