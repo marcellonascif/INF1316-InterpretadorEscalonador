@@ -82,7 +82,7 @@ int main(void){
 
 		// printf("executando = %s\n", (executing == 0 ? "Não" : "Sim"));
 		/*Inicia a execução dos processos*/ 
-		if (!executing){
+		if (executing == FALSE){
 			/* Execução do REAL TIME */
 			if ((!isEmpty(&filaRT)) &&  (sec == filaRT.front->process.init)) {  // Primeiro da fila entra em execução
 				secIni = sec;

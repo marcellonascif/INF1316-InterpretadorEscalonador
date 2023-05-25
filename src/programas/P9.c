@@ -6,18 +6,12 @@
 #include <sys/time.h>
 
 #define EVER ;;
-#define SHM_KEY2 7000
-
-
 
 int main(void){
 
-    int shmid_pid = shmget(SHM_KEY2, sizeof(pid_t), IPC_CREAT | 0666);
-    pid_t* pid = shmat(shmid_pid, 0, 0);
+    pid_t pid = getpid();
 
-    *pid = getpid();
-
-    printf("Programa 9 - pid: %d\n", *pid);
+    printf("Programa 9 - pid: %d\n", pid);
     
     for(EVER){
         printf("Executando P9...\n");
