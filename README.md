@@ -1,1 +1,1 @@
-# INF1316_Interpretador_Escalonador
+# INF1316-InterpretadorEscalonador
